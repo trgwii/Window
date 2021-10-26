@@ -4,7 +4,7 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     const mode = b.standardReleaseOptions();
 
-    const lib = b.addSharedLibrary("Pane2", "src/main.zig", b.version(0, 0, 1));
+    const lib = b.addSharedLibrary("Window", "src/main.zig", b.version(0, 0, 1));
     lib.setTarget(target);
     lib.linkLibC();
     lib.linkSystemLibrary("X11");

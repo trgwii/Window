@@ -1,4 +1,4 @@
-import { close, Window } from "./pane2.ts";
+import { close, Window } from "./Window.ts";
 const win = new Window(800, 600);
 
 win.addEventListener("show", () => {

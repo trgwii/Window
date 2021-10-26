@@ -3,10 +3,10 @@ while (
     cmd: [
       "deno",
       "run",
-      "--allow-write=libPane2.so",
+      "--allow-write=libWindow.so",
       "--unstable",
       "--allow-ffi",
-      "https://raw.githubusercontent.com/trgwii/Window/master/test.ts",
+      (await Deno.stat('test.ts').then(() => true, () => false)) ? 'test.ts' : "https://raw.githubusercontent.com/trgwii/Window/master/test.ts",
     ],
   }).status()).success
 );

@@ -1,2 +1,2 @@
-deno run --allow-run wrap.ts
+deno run --allow-read=test.ts --allow-run wrap.ts
 
