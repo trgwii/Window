@@ -1,6 +1,6 @@
-import lib from './lib.b.ts';
+import lib from "./lib.b.ts";
 
-await Deno.writeFile('libWindow.so', await lib);
+await Deno.writeFile("libWindow.so", await lib);
 
 const mod = Deno.dlopen("./libWindow.so", {
   openDisplay: { parameters: [], result: "i64" },
