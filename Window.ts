@@ -1,34 +1,27 @@
-import { name, data} from "./lib.ts";
+import { data, name } from "./lib.ts";
 
 await Deno.writeFile(name, data);
 
 const mod = Deno.dlopen("./" + name, {
-  openDisplay: { parameters: [], result: "i64" },
-  closeDisplay: { parameters: ["i32", "i32"], result: "void" },
-  createWindow: {
-    parameters: ["i32", "i32", "u32", "u32"],
-    result: "i64",
+  openWindow: {
+    parameters: ["u32", "u32"],
+    result: "u64",
   },
-  clearWindow: {
-    parameters: ["i32", "i32", "i32", "i32"],
+  closeWindow: {
+    parameters: ["i32", "i32"],
+    result: "void",
+  },
+  drawText: {
+    parameters: ["i32", "i32", "u32", "u32", "buffer", "usize"],
+    result: "void",
+  },
+  drawRect: {
+    parameters: ["i32", "i32", "u32", "u32", "u32", "u32"],
     result: "void",
   },
   getEvent: {
     parameters: ["i32", "i32", "buffer", "usize"],
     result: "i32",
-    nonblocking: true,
-  },
-  writeText: {
-    parameters: ["i32", "i32", "i32", "i32", "i32", "i32", "buffer", "usize"],
-    result: "void",
-  },
-  fillRectangle: {
-    parameters: ["i32", "i32", "i32", "i32", "i32", "i32", "u32", "u32"],
-    result: "void",
-  },
-  setForeground: {
-    parameters: ["i32", "i32", "u32"],
-    result: "void",
   },
 });
 
@@ -75,7 +68,6 @@ type WinEventListenerOrWinEventListenerObject =
   | WinEventListenerObject;
 
 export class Window extends EventTarget {
-  #display: bigint;
   #window: bigint;
   #running = false;
   declare addEventListener: (
@@ -86,22 +78,14 @@ export class Window extends EventTarget {
   #e?: Promise<WindowEvent>;
   constructor(width: number, height: number) {
     super();
-    this.#display = this.open();
-    const [dHigh, dLow] = i64_i32(this.#display);
-    this.#window = BigInt(mod.symbols.createWindow(
-      dHigh,
-      dLow,
+    this.#window = BigInt(mod.symbols.openWindow(
       width,
       height,
     ) as number);
   }
-  open() {
-    return this.#display = BigInt(mod.symbols.openDisplay() as number);
-  }
   writeText(x: number, y: number, str: string) {
     const buf = new TextEncoder().encode(str);
-    mod.symbols.writeText(
-      ...i64_i32(this.#display),
+    mod.symbols.drawText(
       ...i64_i32(this.#window),
       x,
       y,
@@ -110,24 +94,9 @@ export class Window extends EventTarget {
     );
   }
 
-  setForeground(color: number) {
-    mod.symbols.setForeground(
-      ...i64_i32(this.#display),
-      color,
-    );
-  }
-
-  clear() {
-    mod.symbols.clearWindow(
-      ...i64_i32(this.#display),
-      ...i64_i32(this.#window),
-    );
-  }
-
   fillRectangle(x: number, y: number, width: number, height: number) {
     // await this.setForeground(color);
-    mod.symbols.fillRectangle(
-      ...i64_i32(this.#display),
+    mod.symbols.drawRect(
       ...i64_i32(this.#window),
       x,
       y,
@@ -138,14 +107,14 @@ export class Window extends EventTarget {
   async close() {
     this.#running = false;
     await this.#e;
-    mod.symbols.closeDisplay(...i64_i32(this.#display));
+    mod.symbols.closeWindow(...i64_i32(this.#window));
   }
   async start() {
     this.#running = true;
     while (this.#running) {
       const buf = new Uint8Array(4);
       this.#e = mod.symbols.getEvent(
-        ...i64_i32(this.#display),
+        ...i64_i32(this.#window),
         buf,
         buf.byteLength,
       ) as Promise<WindowEvent>;

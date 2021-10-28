@@ -4,15 +4,17 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     const mode = b.standardReleaseOptions();
 
-    const lib = if (target.isWindows())
-        b.addSharedLibrary("Window", "src/win32.zig", b.version(0, 0, 1))
-    else blk: {
-        const lib = b.addSharedLibrary("Window", "src/main.zig", b.version(0, 0, 1));
+    const lib = if (target.isWindows()) b: {
+        const lib = b.addSharedLibrary("Window", "src/win32.zig", b.version(0, 0, 1));
+        lib.linkSystemLibrary("gdi32");
+        break :b lib;
+    } else b: {
+        const lib = b.addSharedLibrary("Window", "src/linux.zig", b.version(0, 0, 1));
         lib.linkSystemLibrary("X11");
-        break :blk lib;
+        break :b lib;
     };
-    lib.setTarget(target);
     lib.linkLibC();
+    lib.setTarget(target);
     lib.setBuildMode(mode);
     lib.install();
 

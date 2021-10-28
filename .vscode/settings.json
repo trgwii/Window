@@ -2,5 +2,9 @@
   "deno.enable": true,
   "deno.lint": true,
   "deno.unstable": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "tiehuis.zig",
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }
