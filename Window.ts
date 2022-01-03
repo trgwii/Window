@@ -12,7 +12,7 @@ const mod = Deno.dlopen("./" + name, {
     result: "void",
   },
   drawText: {
-    parameters: ["i32", "i32", "u32", "u32", "buffer", "usize"],
+    parameters: ["i32", "i32", "u32", "u32", "pointer", "usize"],
     result: "void",
   },
   drawRect: {
@@ -20,7 +20,7 @@ const mod = Deno.dlopen("./" + name, {
     result: "void",
   },
   getEvent: {
-    parameters: ["i32", "i32", "buffer", "usize"],
+    parameters: ["i32", "i32", "pointer", "usize"],
     result: "i32",
   },
 });
